@@ -37,7 +37,7 @@ interface ContactsResponse {
 
 export default function AdminDashboard() {
   const { user, logoutMutation } = useAuth();
-  const [activeTab, setActiveTab] = useState("forms");
+  const [activeTab, setActiveTab] = useState("settings");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: contactsData, isLoading: contactsLoading } = useQuery<ContactsResponse>({
@@ -48,22 +48,16 @@ export default function AdminDashboard() {
 
   const menuItems = [
     {
-      id: "forms",
-      label: "Формы",
-      icon: FileText,
-      permission: "view_forms",
-    },
-    {
       id: "settings",
       label: "Настройки",
       icon: Settings,
       permission: "view_settings",
     },
     {
-      id: "users",
-      label: "Пользователи",
-      icon: Users,
-      permission: "manage_users",
+      id: "forms",
+      label: "Отправленные формы",
+      icon: FileText,
+      permission: "view_forms",
     },
   ];
 
@@ -87,6 +81,22 @@ export default function AdminDashboard() {
 
   const renderContent = () => {
     switch (activeTab) {
+      case "settings":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Настройки</h2>
+              <p className="text-gray-600 mt-1">Управление настройками системы</p>
+            </div>
+            <Card>
+              <CardContent className="text-center py-12">
+                <Settings className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">Настройки будут добавлены в следующих версиях</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
       case "forms":
         return (
           <div className="space-y-6">
@@ -163,38 +173,6 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             )}
-          </div>
-        );
-
-      case "settings":
-        return (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Настройки</h2>
-              <p className="text-gray-600 mt-1">Управление настройками системы</p>
-            </div>
-            <Card>
-              <CardContent className="text-center py-12">
-                <Settings className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Настройки будут добавлены в следующих версиях</p>
-              </CardContent>
-            </Card>
-          </div>
-        );
-
-      case "users":
-        return (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Пользователи</h2>
-              <p className="text-gray-600 mt-1">Управление пользователями и ролями</p>
-            </div>
-            <Card>
-              <CardContent className="text-center py-12">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Управление пользователями будет добавлено в следующих версиях</p>
-              </CardContent>
-            </Card>
           </div>
         );
 
