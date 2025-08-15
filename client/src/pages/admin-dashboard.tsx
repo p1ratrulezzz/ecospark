@@ -9,9 +9,6 @@ import {
   LogOut, 
   Settings, 
   FileText, 
-  Users, 
-  Menu,
-  X,
   Mail,
   Building,
   Calendar,
@@ -38,7 +35,6 @@ interface ContactsResponse {
 export default function AdminDashboard() {
   const { user, logoutMutation } = useAuth();
   const [activeTab, setActiveTab] = useState("settings");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: contactsData, isLoading: contactsLoading } = useQuery<ContactsResponse>({
     queryKey: ["/api/admin/contacts"],
@@ -186,20 +182,10 @@ export default function AdminDashboard() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="flex items-center justify-between px-4 lg:px-6 py-4">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              data-testid="button-menu-toggle"
-            >
-              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-            <div className="flex items-center gap-2">
-              <Leaf className="h-6 w-6 text-green-600" />
-              <span className="font-semibold text-gray-900">GreenTech Energy</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <Leaf className="h-6 w-6 text-green-600" />
+            <span className="font-semibold text-gray-900">GreenTech Energy</span>
+            <span className="text-sm text-gray-500 ml-2">Админ-панель</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -225,9 +211,9 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="hidden lg:block bg-white shadow-sm border-r border-gray-200 w-64 min-h-[calc(100vh-73px)]">
+      <div className="flex min-h-[calc(100vh-73px)]">
+        {/* Sidebar - Always visible on desktop */}
+        <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex-shrink-0">
           <nav className="p-4 space-y-2">
             {filteredMenuItems.map((item) => {
               const Icon = item.icon;
@@ -241,7 +227,6 @@ export default function AdminDashboard() {
                   )}
                   onClick={() => {
                     setActiveTab(item.id);
-                    setSidebarOpen(false);
                   }}
                   data-testid={`button-nav-${item.id}`}
                 >
@@ -251,50 +236,15 @@ export default function AdminDashboard() {
               );
             })}
           </nav>
-        </aside>
-
-        {/* Mobile Sidebar */}
-        {sidebarOpen && (
-          <aside className="lg:hidden fixed left-0 top-[73px] bg-white shadow-lg border-r border-gray-200 w-64 h-[calc(100vh-73px)] z-50">
-            <nav className="p-4 space-y-2">
-              {filteredMenuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Button
-                    key={item.id}
-                    variant={activeTab === item.id ? "default" : "ghost"}
-                    className={cn(
-                      "w-full justify-start",
-                      activeTab === item.id && "bg-green-600 hover:bg-green-700 text-white"
-                    )}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setSidebarOpen(false);
-                    }}
-                    data-testid={`button-nav-mobile-${item.id}`}
-                  >
-                    <Icon className="h-4 w-4 mr-2" />
-                    {item.label}
-                  </Button>
-                );
-              })}
-            </nav>
-          </aside>
-        )}
+        </div>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 lg:p-8">
+        <div className="flex-1 p-6 lg:p-8 bg-gray-50">
           {renderContent()}
-        </main>
+        </div>
       </div>
 
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+
     </div>
   );
 }
