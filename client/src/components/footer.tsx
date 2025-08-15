@@ -113,9 +113,18 @@ export default function Footer() {
           <p className="text-slate-400 text-sm" data-testid="footer-copyright">
             {t('footer.copyright', { year: getCurrentYear() })}
           </p>
-          <p className="text-slate-400 text-sm mt-2 md:mt-0" data-testid="footer-tagline">
-            {t('footer.designed')}
-          </p>
+          <div className="flex items-center gap-4 mt-2 md:mt-0">
+            <a 
+              href="/admin/login" 
+              className="text-slate-400 hover:text-slate-300 text-xs transition-colors"
+              data-testid="link-admin"
+            >
+              Admin
+            </a>
+            <p className="text-slate-400 text-sm" data-testid="footer-tagline">
+              {t('footer.designed')}
+            </p>
+          </div>
         </div>
       </div>
     </footer>

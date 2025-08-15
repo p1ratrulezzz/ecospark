@@ -6,6 +6,7 @@ This is a full-stack web application for GreenTech Energy, a renewable energy co
 
 Preferred communication style: Simple, everyday language.
 Languages: Russian, English, French - User requested multi-language support with language switching functionality.
+Admin System Requirements: Full admin dashboard with authentication, role-based permissions, form viewing capabilities, and user management interface.
 
 # System Architecture
 
@@ -31,13 +32,19 @@ Languages: Russian, English, French - User requested multi-language support with
 - **ORM**: Drizzle ORM with connection pooling
 - **Schema Management**: Drizzle Kit for migrations and schema management
 - **Database Tables**: 
-  - `users` table for user authentication (username/password)
+  - `users` table for user authentication with role association
   - `contacts` table for storing contact form submissions with fields for name, email, company, message, and timestamps
+  - `roles` table for user role definitions (admin, etc.)
+  - `permissions` table for granular permission control
+  - `role_permissions` table for role-permission mapping
 
 ## Authentication & Authorization
 - **Session Management**: Express sessions with PostgreSQL session store (connect-pg-simple)
-- **User Storage**: Database-backed user management with password storage
+- **User Storage**: Database-backed user management with password hashing using scrypt
 - **API Security**: Session-based authentication for protected routes
+- **Role-Based Access Control**: Users assigned to roles with specific permissions
+- **Admin System**: Complete admin dashboard at `/admin` with login at `/admin/login`
+- **Default Admin User**: Username: `admin`, Password: `admin` (created via seeding script)
 
 ## Development & Build Process
 - **Development Server**: Vite dev server with HMR for frontend, tsx for backend development
