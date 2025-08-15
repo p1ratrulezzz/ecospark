@@ -227,10 +227,7 @@ export default function AdminDashboard() {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className={cn(
-          "bg-white shadow-sm border-r border-gray-200 w-64 min-h-[calc(100vh-73px)] transition-transform lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        )}>
+        <aside className="hidden lg:block bg-white shadow-sm border-r border-gray-200 w-64 min-h-[calc(100vh-73px)]">
           <nav className="p-4 space-y-2">
             {filteredMenuItems.map((item) => {
               const Icon = item.icon;
@@ -255,6 +252,35 @@ export default function AdminDashboard() {
             })}
           </nav>
         </aside>
+
+        {/* Mobile Sidebar */}
+        {sidebarOpen && (
+          <aside className="lg:hidden fixed left-0 top-[73px] bg-white shadow-lg border-r border-gray-200 w-64 h-[calc(100vh-73px)] z-50">
+            <nav className="p-4 space-y-2">
+              {filteredMenuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.id}
+                    variant={activeTab === item.id ? "default" : "ghost"}
+                    className={cn(
+                      "w-full justify-start",
+                      activeTab === item.id && "bg-green-600 hover:bg-green-700 text-white"
+                    )}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setSidebarOpen(false);
+                    }}
+                    data-testid={`button-nav-mobile-${item.id}`}
+                  >
+                    <Icon className="h-4 w-4 mr-2" />
+                    {item.label}
+                  </Button>
+                );
+              })}
+            </nav>
+          </aside>
+        )}
 
         {/* Main Content */}
         <main className="flex-1 p-6 lg:p-8">
