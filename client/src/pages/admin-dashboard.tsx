@@ -50,11 +50,23 @@ export default function AdminDashboard() {
       permission: "view_settings",
     },
     {
-      id: "forms",
-      label: "Отправленные формы",
+      id: "forms", 
+      label: "Формы",
       icon: FileText,
       permission: "view_forms",
     },
+    {
+      id: "users",
+      label: "Пользователи", 
+      icon: User,
+      permission: "view_users"
+    },
+    {
+      id: "analytics",
+      label: "Аналитика",
+      icon: Building,
+      permission: "view_analytics"
+    }
   ];
 
   const filteredMenuItems = menuItems.filter(item => 
@@ -172,6 +184,38 @@ export default function AdminDashboard() {
           </div>
         );
 
+      case "users":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Пользователи</h2>
+              <p className="text-gray-600 mt-1">Управление пользователями системы</p>
+            </div>
+            <Card>
+              <CardContent className="text-center py-12">
+                <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">Управление пользователями будет добавлено в следующих версиях</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      case "analytics":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Аналитика</h2>
+              <p className="text-gray-600 mt-1">Статистика и аналитика использования</p>
+            </div>
+            <Card>
+              <CardContent className="text-center py-12">
+                <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">Аналитика будет добавлена в следующих версиях</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -211,40 +255,37 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <div className="flex min-h-[calc(100vh-73px)]">
-        {/* Sidebar - Always visible on desktop */}
-        <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex-shrink-0">
-          <nav className="p-4 space-y-2">
+      {/* Navigation Menu */}
+      <nav className="bg-white border-b border-gray-200">
+        <div className="px-4 lg:px-6">
+          <div className="flex space-x-8">
             {filteredMenuItems.map((item) => {
               const Icon = item.icon;
               return (
-                <Button
+                <button
                   key={item.id}
-                  variant={activeTab === item.id ? "default" : "ghost"}
+                  onClick={() => setActiveTab(item.id)}
                   className={cn(
-                    "w-full justify-start",
-                    activeTab === item.id && "bg-green-600 hover:bg-green-700 text-white"
+                    "flex items-center px-3 py-4 text-sm font-medium border-b-2 transition-colors",
+                    activeTab === item.id
+                      ? "border-green-600 text-green-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   )}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                  }}
                   data-testid={`button-nav-${item.id}`}
                 >
                   <Icon className="h-4 w-4 mr-2" />
                   {item.label}
-                </Button>
+                </button>
               );
             })}
-          </nav>
+          </div>
         </div>
+      </nav>
 
-        {/* Main Content */}
-        <div className="flex-1 p-6 lg:p-8 bg-gray-50">
-          {renderContent()}
-        </div>
-      </div>
-
-
+      {/* Main Content */}
+      <main className="p-6 lg:p-8">
+        {renderContent()}
+      </main>
     </div>
   );
 }
