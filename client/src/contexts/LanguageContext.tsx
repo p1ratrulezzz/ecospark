@@ -5,7 +5,7 @@ export type Language = 'en' | 'ru' | 'fr';
 interface LanguageContextType {
   currentLanguage: Language;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, replacements?: Record<string, string>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -81,7 +81,7 @@ const translations = {
     'footer.links.docs': 'Documentation',
     'footer.links.privacy': 'Privacy Policy',
     'footer.links.terms': 'Terms of Service',
-    'footer.copyright': '© 2024 GreenTech Energy. All rights reserved.',
+    'footer.copyright': '© {year} GreenTech Energy. All rights reserved.',
     'footer.designed': 'Designed with ♻️ for a sustainable future',
     
     // Language Selector
@@ -155,7 +155,7 @@ const translations = {
     'footer.links.docs': 'Документация',
     'footer.links.privacy': 'Политика Конфиденциальности',
     'footer.links.terms': 'Условия Использования',
-    'footer.copyright': '© 2024 GreenTech Energy. Все права защищены.',
+    'footer.copyright': '© {year} GreenTech Energy. Все права защищены.',
     'footer.designed': 'Разработано с ♻️ для устойчивого будущего',
     
     // Language Selector
@@ -229,7 +229,7 @@ const translations = {
     'footer.links.docs': 'Documentation',
     'footer.links.privacy': 'Politique de Confidentialité',
     'footer.links.terms': 'Conditions d\'Utilisation',
-    'footer.copyright': '© 2024 GreenTech Energy. Tous droits réservés.',
+    'footer.copyright': '© {year} GreenTech Energy. Tous droits réservés.',
     'footer.designed': 'Conçu avec ♻️ pour un avenir durable',
     
     // Language Selector
@@ -257,9 +257,18 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     localStorage.setItem('language', language);
   };
 
-  // Translation function
-  const t = (key: string): string => {
-    return translations[currentLanguage]?.[key as keyof typeof translations[typeof currentLanguage]] || key;
+  // Translation function with dynamic replacements
+  const t = (key: string, replacements?: Record<string, string>): string => {
+    let translation = translations[currentLanguage]?.[key as keyof typeof translations[typeof currentLanguage]] || key;
+    
+    // Handle dynamic replacements like {year}
+    if (replacements) {
+      Object.entries(replacements).forEach(([placeholder, value]) => {
+        translation = translation.replace(`{${placeholder}}`, value);
+      });
+    }
+    
+    return translation;
   };
 
   return (

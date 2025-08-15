@@ -2,7 +2,15 @@ import { Leaf } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Footer() {
-  const { t } = useLanguage();
+  const { t, currentLanguage } = useLanguage();
+  
+  // Get current year in user's locale
+  const getCurrentYear = () => {
+    const date = new Date();
+    return date.toLocaleDateString(currentLanguage === 'ru' ? 'ru-RU' : currentLanguage === 'fr' ? 'fr-FR' : 'en-US', { 
+      year: 'numeric' 
+    });
+  };
   
   const footerSections = [
     {
@@ -103,7 +111,7 @@ export default function Footer() {
         
         <div className="flex flex-col md:flex-row justify-between items-center">
           <p className="text-slate-400 text-sm" data-testid="footer-copyright">
-            {t('footer.copyright')}
+            {t('footer.copyright', { year: getCurrentYear() })}
           </p>
           <p className="text-slate-400 text-sm mt-2 md:mt-0" data-testid="footer-tagline">
             {t('footer.designed')}
