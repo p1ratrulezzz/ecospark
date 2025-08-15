@@ -1,6 +1,9 @@
 import { Zap, Leaf } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Hero() {
+  const { t } = useLanguage();
+  
   const scrollToContact = () => {
     const element = document.getElementById("contact");
     if (element) {
@@ -32,12 +35,12 @@ export default function Hero() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="text-center lg:text-left">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight mb-6" data-testid="hero-title">
-              Powering a{" "}
-              <span className="text-green-primary">Sustainable</span>{" "}
-              Future
+              {t('hero.title')}{" "}
+              <span className="text-green-primary">{t('hero.title.sustainable')}</span>{" "}
+              {t('hero.title.future')}
             </h1>
             <p className="text-xl text-slate-600 mb-8 leading-relaxed" data-testid="hero-subtitle">
-              Revolutionary renewable energy solutions that transform how businesses and communities harness clean power. Join us in building a greener tomorrow.
+              {t('hero.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button 
@@ -45,14 +48,14 @@ export default function Hero() {
                 className="bg-green-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-green-600 transform hover:scale-105 transition-all duration-200 shadow-lg"
                 data-testid="button-get-started"
               >
-                Get Started Today
+                {t('hero.cta.getStarted')}
               </button>
               <button 
                 onClick={scrollToMission}
                 className="border-2 border-green-primary text-green-primary px-8 py-4 rounded-lg font-semibold hover:bg-green-primary hover:text-white transition-all duration-200"
                 data-testid="button-learn-more"
               >
-                Learn More
+                {t('hero.cta.learnMore')}
               </button>
             </div>
           </div>
@@ -76,7 +79,7 @@ export default function Hero() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-slate-900">500MW+</div>
-                  <div className="text-sm text-slate-600">Clean Energy Generated</div>
+                  <div className="text-sm text-slate-600">{t('hero.stats.energy')}</div>
                 </div>
               </div>
             </div>
@@ -88,7 +91,7 @@ export default function Hero() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-slate-900">2.5M</div>
-                  <div className="text-sm text-slate-600">Tons CO₂ Reduced</div>
+                  <div className="text-sm text-slate-600">{t('hero.stats.carbon')}</div>
                 </div>
               </div>
             </div>

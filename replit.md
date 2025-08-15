@@ -5,6 +5,7 @@ This is a full-stack web application for GreenTech Energy, a renewable energy co
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+Languages: Russian, English, French - User requested multi-language support with language switching functionality.
 
 # System Architecture
 
@@ -15,6 +16,7 @@ Preferred communication style: Simple, everyday language.
 - **UI Components**: shadcn/ui component library built on Radix UI primitives
 - **Styling**: Tailwind CSS with CSS custom properties for theming
 - **Form Handling**: React Hook Form with Zod validation for type-safe form management
+- **Internationalization**: Custom React Context-based translation system supporting Russian, English, and French languages with localStorage persistence and language selector component
 
 ## Backend Architecture
 - **Runtime**: Node.js with Express.js framework

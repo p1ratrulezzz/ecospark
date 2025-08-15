@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertContactSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +16,7 @@ import type { InsertContact } from "@shared/schema";
 export default function ContactForm() {
   const [showSuccess, setShowSuccess] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
 
   const form = useForm<InsertContact>({
@@ -37,8 +39,8 @@ export default function ContactForm() {
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 5000);
       toast({
-        title: "Message Sent Successfully!",
-        description: "We'll get back to you within 24 hours.",
+        title: t('contact.form.success.title'),
+        description: t('contact.form.success.subtitle'),
       });
     },
     onError: (error) => {
@@ -58,19 +60,19 @@ export default function ContactForm() {
   const contactInfo = [
     {
       icon: Phone,
-      title: "Call Us",
+      titleKey: "contact.info.call",
       value: "+1 (555) 123-4567",
       testId: "contact-phone"
     },
     {
       icon: Mail,
-      title: "Email Us",
+      titleKey: "contact.info.email",
       value: "hello@greentechenergy.com",
       testId: "contact-email"
     },
     {
       icon: MapPin,
-      title: "Visit Us",
+      titleKey: "contact.info.visit",
       value: "123 Clean Energy Blvd, San Francisco, CA",
       testId: "contact-address"
     }
@@ -82,10 +84,10 @@ export default function ContactForm() {
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           <div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6" data-testid="contact-title">
-              Let's Power Your Future Together
+              {t('contact.title')}
             </h2>
             <p className="text-xl text-slate-600 mb-8" data-testid="contact-subtitle">
-              Ready to explore renewable energy solutions for your business? Get in touch with our experts and discover how we can help you achieve your sustainability goals.
+              {t('contact.subtitle')}
             </p>
             
             <div className="space-y-6">
@@ -97,7 +99,7 @@ export default function ContactForm() {
                       <Icon className="text-white text-lg" />
                     </div>
                     <div>
-                      <div className="font-semibold text-slate-900">{info.title}</div>
+                      <div className="font-semibold text-slate-900">{t(info.titleKey)}</div>
                       <div className="text-slate-600">{info.value}</div>
                     </div>
                   </div>
@@ -110,8 +112,8 @@ export default function ContactForm() {
             {showSuccess ? (
               <div className="text-center py-8" data-testid="success-message">
                 <CheckCircle className="h-16 w-16 text-green-primary mx-auto mb-4" />
-                <h3 className="text-2xl font-semibold text-slate-900 mb-2">Message Sent Successfully!</h3>
-                <p className="text-slate-600">We'll get back to you within 24 hours.</p>
+                <h3 className="text-2xl font-semibold text-slate-900 mb-2">{t('contact.form.success.title')}</h3>
+                <p className="text-slate-600">{t('contact.form.success.subtitle')}</p>
               </div>
             ) : (
               <Form {...form}>
@@ -123,11 +125,11 @@ export default function ContactForm() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-semibold text-slate-700">
-                            Full Name *
+                            {t('contact.form.name')} {t('contact.form.required')}
                           </FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder="John Doe" 
+                              placeholder={t('contact.form.placeholder.name')} 
                               {...field} 
                               data-testid="input-name"
                               className="px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-green-primary transition-colors duration-200"
@@ -144,12 +146,12 @@ export default function ContactForm() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-semibold text-slate-700">
-                            Email Address *
+                            {t('contact.form.email')} {t('contact.form.required')}
                           </FormLabel>
                           <FormControl>
                             <Input 
                               type="email" 
-                              placeholder="john@company.com" 
+                              placeholder={t('contact.form.placeholder.email')} 
                               {...field} 
                               data-testid="input-email"
                               className="px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-green-primary transition-colors duration-200"
@@ -167,12 +169,13 @@ export default function ContactForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-sm font-semibold text-slate-700">
-                          Company
+                          {t('contact.form.company')}
                         </FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="Your Company Name" 
+                            placeholder={t('contact.form.placeholder.company')} 
                             {...field} 
+                            value={field.value || ""}
                             data-testid="input-company"
                             className="px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-green-primary transition-colors duration-200"
                           />
@@ -188,12 +191,12 @@ export default function ContactForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-sm font-semibold text-slate-700">
-                          Message *
+                          {t('contact.form.message')} {t('contact.form.required')}
                         </FormLabel>
                         <FormControl>
                           <Textarea 
                             rows={5} 
-                            placeholder="Tell us about your renewable energy needs..."
+                            placeholder={t('contact.form.placeholder.message')}
                             {...field} 
                             data-testid="input-message"
                             className="px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-primary focus:border-green-primary transition-colors duration-200 resize-none"
@@ -213,10 +216,10 @@ export default function ContactForm() {
                     {createContactMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending...
+                        {t('contact.form.sending')}
                       </>
                     ) : (
-                      "Send Message"
+                      t('contact.form.submit')
                     )}
                   </Button>
                 </form>

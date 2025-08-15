@@ -1,21 +1,24 @@
 import { Sun, Wind, Battery } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Mission() {
+  const { t } = useLanguage();
+  
   const missionPoints = [
     {
       icon: Sun,
-      title: "Solar Innovation",
-      description: "Cutting-edge photovoltaic technology that maximizes energy efficiency while minimizing environmental impact."
+      titleKey: "mission.solar.title",
+      descriptionKey: "mission.solar.description"
     },
     {
       icon: Wind,
-      title: "Wind Power",
-      description: "Advanced wind energy systems designed for optimal performance in diverse geographical conditions."
+      titleKey: "mission.wind.title",
+      descriptionKey: "mission.wind.description"
     },
     {
       icon: Battery,
-      title: "Energy Storage",
-      description: "Revolutionary battery technology that ensures reliable, round-the-clock renewable energy access."
+      titleKey: "mission.battery.title",
+      descriptionKey: "mission.battery.description"
     }
   ];
 
@@ -24,10 +27,10 @@ export default function Mission() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6" data-testid="mission-title">
-            Our Mission
+            {t('mission.title')}
           </h2>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto" data-testid="mission-subtitle">
-            We're committed to accelerating the world's transition to sustainable energy through innovative technology and strategic partnerships.
+            {t('mission.subtitle')}
           </p>
         </div>
 
@@ -40,10 +43,10 @@ export default function Mission() {
                   <Icon className="text-green-primary text-2xl group-hover:text-white transition-colors duration-300" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-4" data-testid={`mission-title-${index}`}>
-                  {point.title}
+                  {t(point.titleKey)}
                 </h3>
                 <p className="text-slate-600" data-testid={`mission-description-${index}`}>
-                  {point.description}
+                  {t(point.descriptionKey)}
                 </p>
               </div>
             );
@@ -53,10 +56,10 @@ export default function Mission() {
         {/* Mission statement highlight */}
         <div className="bg-gradient-to-r from-green-primary to-green-accent rounded-2xl p-8 lg:p-12 text-white text-center" data-testid="mission-statement">
           <h3 className="text-2xl lg:text-3xl font-bold mb-4" data-testid="mission-statement-title">
-            Building Tomorrow's Energy Infrastructure Today
+            {t('mission.statement.title')}
           </h3>
           <p className="text-lg opacity-90 max-w-4xl mx-auto" data-testid="mission-statement-text">
-            Every kilowatt of clean energy we generate is a step toward energy independence, economic growth, and environmental preservation. We believe that sustainable energy isn't just good for the planet—it's good for business.
+            {t('mission.statement.text')}
           </p>
         </div>
       </div>

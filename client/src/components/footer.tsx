@@ -1,32 +1,35 @@
 import { Leaf } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Footer() {
+  const { t } = useLanguage();
+  
   const footerSections = [
     {
-      title: "Solutions",
+      titleKey: "footer.sections.solutions",
       links: [
-        { name: "Solar Power", href: "#" },
-        { name: "Wind Energy", href: "#" },
-        { name: "Energy Storage", href: "#" },
-        { name: "Smart Grid", href: "#" },
+        { nameKey: "footer.links.solar", href: "#" },
+        { nameKey: "footer.links.wind", href: "#" },
+        { nameKey: "footer.links.storage", href: "#" },
+        { nameKey: "footer.links.grid", href: "#" },
       ]
     },
     {
-      title: "Company",
+      titleKey: "footer.sections.company",
       links: [
-        { name: "About Us", href: "#" },
-        { name: "Careers", href: "#" },
-        { name: "News", href: "#" },
-        { name: "Partners", href: "#" },
+        { nameKey: "footer.links.about", href: "#" },
+        { nameKey: "footer.links.careers", href: "#" },
+        { nameKey: "footer.links.news", href: "#" },
+        { nameKey: "footer.links.partners", href: "#" },
       ]
     },
     {
-      title: "Support",
+      titleKey: "footer.sections.support",
       links: [
-        { name: "Contact", href: "#" },
-        { name: "Documentation", href: "#" },
-        { name: "Privacy Policy", href: "#" },
-        { name: "Terms of Service", href: "#" },
+        { nameKey: "footer.links.contact", href: "#" },
+        { nameKey: "footer.links.docs", href: "#" },
+        { nameKey: "footer.links.privacy", href: "#" },
+        { nameKey: "footer.links.terms", href: "#" },
       ]
     }
   ];
@@ -41,7 +44,7 @@ export default function Footer() {
               <span className="text-xl font-bold">GreenTech Energy</span>
             </div>
             <p className="text-slate-400 mb-4">
-              Leading the renewable energy revolution with innovative solutions for a sustainable future.
+              {t('footer.tagline')}
             </p>
             <div className="flex space-x-4">
               <a 
@@ -77,7 +80,7 @@ export default function Footer() {
           {footerSections.map((section, index) => (
             <div key={index} data-testid={`footer-section-${index}`}>
               <h3 className="font-semibold mb-4" data-testid={`footer-title-${index}`}>
-                {section.title}
+                {t(section.titleKey)}
               </h3>
               <ul className="space-y-2 text-slate-400">
                 {section.links.map((link, linkIndex) => (
@@ -87,7 +90,7 @@ export default function Footer() {
                       className="hover:text-green-primary transition-colors duration-200"
                       data-testid={`footer-link-${index}-${linkIndex}`}
                     >
-                      {link.name}
+                      {t(link.nameKey)}
                     </a>
                   </li>
                 ))}
@@ -100,10 +103,10 @@ export default function Footer() {
         
         <div className="flex flex-col md:flex-row justify-between items-center">
           <p className="text-slate-400 text-sm" data-testid="footer-copyright">
-            © 2024 GreenTech Energy. All rights reserved.
+            {t('footer.copyright')}
           </p>
           <p className="text-slate-400 text-sm mt-2 md:mt-0" data-testid="footer-tagline">
-            Designed with ♻️ for a sustainable future
+            {t('footer.designed')}
           </p>
         </div>
       </div>
