@@ -1,10 +1,6 @@
-version: '3.8'
-
 services:
   app:
     build: .
-    ports:
-      - "5000:5000"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://greentech_user:${DB_PASSWORD:-greentech_secure_password_123}@db:5432/greentech_db
@@ -20,12 +16,34 @@ services:
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
+    networks:
+      - traefik_proxy
+      - default
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      
+      # HTTPS redirect middleware
+      - "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.httpsRedirect.redirectscheme.permanent=true"
+      
+      # HTTP router (redirects to HTTPS)
+      - "traefik.http.routers.ecospark-http.rule=Host(`${APP_URL}`)"
+      - "traefik.http.routers.ecospark-http.entrypoints=web"
+      - "traefik.http.routers.ecospark-http.middlewares=httpsRedirect"
+      
+      # HTTPS router
+      - "traefik.http.routers.ecospark.rule=Host(`${APP_URL}`)"
+      - "traefik.http.routers.ecospark.entrypoints=websecure"
+      - "traefik.http.routers.ecospark.tls=true"
+      - "traefik.http.routers.ecospark.tls.certresolver=le"
+      - "traefik.http.services.ecospark.loadbalancer.server.port=5000"
+      - "traefik.docker.network=traefik_proxy"
 
   db:
     image: postgres:15-alpine
@@ -48,3 +66,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  traefik_proxy:
+    external: true

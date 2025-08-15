@@ -1,8 +1,6 @@
 services:
   app:
     build: .
-    ports:
-      - "5000:5000"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://greentech:greentech123@db:5432/greentech
@@ -17,6 +15,16 @@ services:
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
+    networks:
+      - traefik_proxy
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ecospark.rule=Host(`${APP_URL}`)"
+      - "traefik.http.routers.ecospark.entrypoints=websecure"
+      - "traefik.http.routers.ecospark.tls=true"
+      - "traefik.http.routers.ecospark.tls.certresolver=le"
+      - "traefik.http.services.ecospark.loadbalancer.server.port=5000"
 
   db:
     image: postgres:15-alpine
@@ -33,3 +41,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  traefik_proxy:
+    external: true
