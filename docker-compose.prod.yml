@@ -5,6 +5,7 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://greentech_user:${DB_PASSWORD:-greentech_secure_password_123}@db:5432/greentech_db
       - SESSION_SECRET=${SESSION_SECRET:-change-this-to-a-secure-random-string-in-production}
+      - APP_URL=${APP_URL:-ecospark.loc}
       - PGHOST=db
       - PGPORT=5432
       - PGDATABASE=greentech_db
