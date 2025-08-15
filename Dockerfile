@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
-# Установка зависимостей для сборки
-RUN apk add --no-cache python3 make g++
+# Установка зависимостей для сборки и curl для healthcheck
+RUN apk add --no-cache python3 make g++ curl
 
 # Создание рабочей директории
 WORKDIR /app
