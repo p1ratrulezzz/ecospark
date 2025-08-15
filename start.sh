@@ -46,7 +46,7 @@ docker-compose -f docker-compose.prod.yml exec app npm run db:push
 
 # Создание пользователя администратора
 echo "👤 Создание пользователя администратора..."
-docker-compose -f docker-compose.prod.yml exec app tsx server/seed.ts
+docker-compose -f docker-compose.prod.yml exec app npm run seed
 
 echo ""
 echo "🎉 GreenTech Energy успешно запущен!"
