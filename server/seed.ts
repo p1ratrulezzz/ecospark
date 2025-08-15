@@ -1,7 +1,10 @@
-import { db } from "./db";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { users, roles, permissions, rolePermissions } from "@shared/schema";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
+import { eq } from "drizzle-orm";
+import * as schema from "@shared/schema";
 
 const scryptAsync = promisify(scrypt);
 
@@ -12,6 +15,10 @@ async function hashPassword(password: string) {
 }
 
 async function seedDatabase() {
+  // Create local PostgreSQL connection instead of using Neon
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const db = drizzle({ client: pool, schema });
+  
   try {
     console.log("🌱 Starting database seeding...");
 
@@ -44,9 +51,36 @@ async function seedDatabase() {
       .onConflictDoNothing()
       .returning();
 
+    const [carteBlanchePermission] = await db
+      .insert(permissions)
+      .values({
+        name: "carte_blanche",
+        description: "Full access - bypasses all permission checks",
+      })
+      .onConflictDoNothing()
+      .returning();
+
+    const [manageUsersPermission2] = await db
+      .insert(permissions)
+      .values({
+        name: "manage_users",
+        description: "Manage system users and assign roles",
+      })
+      .onConflictDoNothing()
+      .returning();
+
+    const [manageRolesPermission] = await db
+      .insert(permissions)
+      .values({
+        name: "manage_roles",
+        description: "Manage roles and permissions",
+      })
+      .onConflictDoNothing()
+      .returning();
+
     // Create admin role
     console.log("Creating admin role...");
-    const [adminRole] = await db
+    let [adminRole] = await db
       .insert(roles)
       .values({
         name: "admin",
@@ -54,6 +88,11 @@ async function seedDatabase() {
       })
       .onConflictDoNothing()
       .returning();
+    
+    // If role already exists, get it
+    if (!adminRole) {
+      [adminRole] = await db.select().from(roles).where(eq(roles.name, "admin"));
+    }
 
     // Assign permissions to admin role
     if (adminRole && viewFormsPermission) {
@@ -86,6 +125,36 @@ async function seedDatabase() {
         .onConflictDoNothing();
     }
 
+    if (adminRole && carteBlanchePermission) {
+      await db
+        .insert(rolePermissions)
+        .values({
+          roleId: adminRole.id,
+          permissionId: carteBlanchePermission.id,
+        })
+        .onConflictDoNothing();
+    }
+
+    if (adminRole && manageUsersPermission2) {
+      await db
+        .insert(rolePermissions)
+        .values({
+          roleId: adminRole.id,
+          permissionId: manageUsersPermission2.id,
+        })
+        .onConflictDoNothing();
+    }
+
+    if (adminRole && manageRolesPermission) {
+      await db
+        .insert(rolePermissions)
+        .values({
+          roleId: adminRole.id,
+          permissionId: manageRolesPermission.id,
+        })
+        .onConflictDoNothing();
+    }
+
     // Create admin user
     console.log("Creating admin user...");
     const hashedPassword = await hashPassword("admin");
@@ -107,6 +176,8 @@ async function seedDatabase() {
   } catch (error) {
     console.error("❌ Error seeding database:", error);
     process.exit(1);
+  } finally {
+    await pool.end();
   }
 }
 

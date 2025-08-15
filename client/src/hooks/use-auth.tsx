@@ -24,14 +24,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   const {
-    data: user,
+    data: userData,
     error,
     isLoading,
-  } = useQuery<(SelectUser & { role?: any; permissions?: string[] }) | undefined, Error>({
+  } = useQuery<{ success: boolean; user: SelectUser & { role?: any; permissions?: string[] } } | undefined, Error>({
     queryKey: ["/api/admin/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: false,
   });
+
+  const user = userData?.user;
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {

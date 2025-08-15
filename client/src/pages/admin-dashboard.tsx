@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,11 +13,113 @@ import {
   Mail,
   Building,
   Calendar,
-  User
+  User,
+  Shield,
+  Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+
+function RoleCard({ role, permissions }: { role: Role; permissions: Permission[] }) {
+  const [rolePermissions, setRolePermissions] = useState<Permission[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch role permissions
+  const { data: rolePermissionsData } = useQuery({
+    queryKey: [`/api/admin/roles/${role.id}/permissions`],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+  });
+
+  // Update role permissions when data changes
+  React.useEffect(() => {
+    if (rolePermissionsData?.permissions) {
+      setRolePermissions(rolePermissionsData.permissions);
+    }
+  }, [rolePermissionsData]);
+
+  const handlePermissionToggle = async (permission: Permission, checked: boolean) => {
+    setLoading(true);
+    try {
+      const url = `/api/admin/roles/${role.id}/permissions/${permission.id}`;
+      const method = checked ? 'POST' : 'DELETE';
+      
+      await fetch(url, { method });
+      
+      if (checked) {
+        setRolePermissions(prev => [...prev, permission]);
+      } else {
+        setRolePermissions(prev => prev.filter(p => p.id !== permission.id));
+      }
+    } catch (error) {
+      console.error('Failed to toggle permission:', error);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-4 w-4 text-blue-600" />
+              {role.name}
+            </CardTitle>
+            {role.description && (
+              <CardDescription>{role.description}</CardDescription>
+            )}
+          </div>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={async () => {
+              if (confirm('Удалить роль?')) {
+                try {
+                  await fetch(`/api/admin/roles/${role.id}`, { method: 'DELETE' });
+                  window.location.reload();
+                } catch (error) {
+                  console.error('Failed to delete role:', error);
+                }
+              }
+            }}
+          >
+            Удалить
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div>
+          <h4 className="font-medium mb-3">Разрешения:</h4>
+          <div className="space-y-2">
+            {permissions.map((permission) => (
+              <div key={permission.id} className="flex items-center space-x-2">
+                <Checkbox
+                  checked={rolePermissions.some(p => p.id === permission.id)}
+                  onCheckedChange={(checked) => 
+                    handlePermissionToggle(permission, !!checked)
+                  }
+                  disabled={loading}
+                />
+                <label className="text-sm">
+                  <span className="font-medium">{permission.name}</span>
+                  {permission.description && (
+                    <span className="text-gray-500 ml-1">- {permission.description}</span>
+                  )}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 interface Contact {
   id: string;
@@ -32,6 +135,45 @@ interface ContactsResponse {
   contacts: Contact[];
 }
 
+interface User {
+  id: string;
+  username: string;
+  roleId: number | null;
+  role?: {
+    id: number;
+    name: string;
+    description?: string;
+  };
+}
+
+interface UsersResponse {
+  success: boolean;
+  users: User[];
+}
+
+interface Role {
+  id: number;
+  name: string;
+  description?: string;
+  createdAt: string;
+}
+
+interface RolesResponse {
+  success: boolean;
+  roles: Role[];
+}
+
+interface Permission {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+interface PermissionsResponse {
+  success: boolean;
+  permissions: Permission[];
+}
+
 export default function AdminDashboard() {
   const { user, logoutMutation } = useAuth();
   const [activeTab, setActiveTab] = useState("settings");
@@ -40,6 +182,24 @@ export default function AdminDashboard() {
     queryKey: ["/api/admin/contacts"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     enabled: activeTab === "forms" && !!user,
+  });
+
+  const { data: usersData, isLoading: usersLoading } = useQuery<UsersResponse>({
+    queryKey: ["/api/admin/users"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    enabled: activeTab === "users" && !!user,
+  });
+
+  const { data: rolesData, isLoading: rolesLoading } = useQuery<RolesResponse>({
+    queryKey: ["/api/admin/roles"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    enabled: (activeTab === "roles" || activeTab === "users") && !!user,
+  });
+
+  const { data: permissionsData, isLoading: permissionsLoading } = useQuery<PermissionsResponse>({
+    queryKey: ["/api/admin/permissions"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    enabled: activeTab === "roles" && !!user,
   });
 
   const menuItems = [
@@ -58,20 +218,36 @@ export default function AdminDashboard() {
     {
       id: "users",
       label: "Пользователи", 
-      icon: User,
-      permission: "view_users"
+      icon: Users,
+      permission: "manage_users"
+    },
+    {
+      id: "roles",
+      label: "Роли", 
+      icon: Shield,
+      permission: "manage_roles"
     },
     {
       id: "analytics",
       label: "Аналитика",
       icon: Building,
-      permission: "view_analytics"
+      permission: undefined
     }
   ];
 
-  const filteredMenuItems = menuItems.filter(item => 
-    !item.permission || user?.permissions?.includes(item.permission)
-  );
+  const filteredMenuItems = menuItems.filter(item => {
+    // Если нет требования разрешения, показываем элемент
+    if (!item.permission) return true;
+    
+    // Если нет информации о пользователе или разрешениях, скрываем
+    if (!user?.permissions) return false;
+    
+    // Если есть carte_blanche, показываем все
+    if (user.permissions.includes("carte_blanche")) return true;
+    
+    // Иначе проверяем конкретное разрешение
+    return user.permissions.includes(item.permission);
+  });
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -191,12 +367,150 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-bold text-gray-900">Пользователи</h2>
               <p className="text-gray-600 mt-1">Управление пользователями системы</p>
             </div>
-            <Card>
-              <CardContent className="text-center py-12">
-                <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Управление пользователями будет добавлено в следующих версиях</p>
-              </CardContent>
-            </Card>
+
+            {usersLoading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardHeader>
+                      <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            ) : usersData?.users && usersData.users.length > 0 ? (
+              <div className="space-y-4">
+                {usersData.users.map((userData) => (
+                  <Card key={userData.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <CardTitle className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-green-600" />
+                            {userData.username}
+                          </CardTitle>
+                          <CardDescription>
+                            Роль: {userData.role?.name || "Не назначена"}
+                          </CardDescription>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={userData.roleId?.toString() || "0"}
+                            onValueChange={async (roleId) => {
+                              try {
+                                await fetch(`/api/admin/users/${userData.id}/role`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ roleId: roleId === "0" ? null : parseInt(roleId) }),
+                                });
+                                window.location.reload();
+                              } catch (error) {
+                                console.error('Failed to update user role:', error);
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Выберите роль" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="0">Без роли</SelectItem>
+                              {rolesData?.roles.map((role) => (
+                                <SelectItem key={role.id} value={role.id.toString()}>
+                                  {role.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">Пользователи не найдены</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        );
+
+      case "roles":
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Роли</h2>
+                <p className="text-gray-600 mt-1">Управление ролями и разрешениями</p>
+              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>Создать роль</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Создать новую роль</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target as HTMLFormElement);
+                    try {
+                      await fetch('/api/admin/roles', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          name: formData.get('name'),
+                          description: formData.get('description'),
+                        }),
+                      });
+                      window.location.reload();
+                    } catch (error) {
+                      console.error('Failed to create role:', error);
+                    }
+                  }} className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">Название</label>
+                      <Input name="name" required />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Описание</label>
+                      <Textarea name="description" />
+                    </div>
+                    <Button type="submit">Создать</Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {rolesLoading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardHeader>
+                      <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            ) : rolesData?.roles && rolesData.roles.length > 0 ? (
+              <div className="space-y-4">
+                {rolesData.roles.map((role) => (
+                  <RoleCard key={role.id} role={role} permissions={permissionsData?.permissions || []} />
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">Роли не найдены</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         );
 
