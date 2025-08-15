@@ -36,6 +36,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint for Docker
+app.get("/api/health", (_req, res) => {
+  res.status(200).json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 (async () => {
   const server = await registerRoutes(app);
 

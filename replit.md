@@ -52,6 +52,31 @@ Admin System Requirements: Full admin dashboard with authentication, role-based 
 - **Type Safety**: Shared TypeScript types between frontend and backend via shared schema definitions
 - **Development Tools**: Replit-specific plugins for enhanced development experience
 
+# Docker Deployment
+
+## Production Deployment
+- **Docker Support**: Complete Docker Compose setup for server deployment
+- **Multi-container Architecture**: Separate containers for application and PostgreSQL database
+- **Health Checks**: Docker health monitoring for both application and database containers
+- **Production Configuration**: Optimized Docker Compose with security considerations
+- **Auto-restart**: Containers automatically restart on failure
+- **Volume Persistence**: Database data persisted in Docker volumes
+
+## Docker Files
+- `Dockerfile`: Multi-stage build with Node.js Alpine image, security hardening with non-root user
+- `docker-compose.yml`: Development Docker setup with exposed database port
+- `docker-compose.prod.yml`: Production-ready configuration with health checks and secure defaults
+- `init.sql`: Database initialization script for session table and extensions
+- `.env.example`: Template for environment variables with security guidelines
+- `start.sh`: Automated deployment script with database initialization and admin user creation
+
+## Deployment Process
+1. Environment configuration with secure passwords and session secrets
+2. Docker container build and startup with dependency management
+3. Database migration execution and schema setup
+4. Admin user creation with default credentials
+5. Health check verification and service monitoring
+
 # External Dependencies
 
 ## Database Services

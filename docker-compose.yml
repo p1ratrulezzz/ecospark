@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://greentech:greentech123@db:5432/greentech
+      - SESSION_SECRET=your-super-secret-session-key-change-this-in-production
+      - PGHOST=db
+      - PGPORT=5432
+      - PGDATABASE=greentech
+      - PGUSER=greentech
+      - PGPASSWORD=greentech123
+    depends_on:
+      - db
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=greentech
+      - POSTGRES_USER=greentech
+      - POSTGRES_PASSWORD=greentech123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
